@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- spring + hibernate ＋ struts2 项目整合 -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	<!--配置数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+		<property name="url"
+			value="jdbc:sqlserver://172.20.7.16;databasename=zichanguanli_10110008" />
+		<property name="username" value="test2016" />
+		<property name="password" value="test2016" />
+		<property name="initialSize" value="1" />
+		<property name="maxActive" value="500" />
+		<property name="maxIdle" value="2" />
+		<property name="minIdle" value="1" />
+	</bean>
+	<!--配置SessionFactory,并且给SessionFactory注入数据源-->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 配置hibernate的属性 -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.SQLServer2008Dialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+			</props>
+		</property>
+		<property name="annotatedClasses">
+			<list>
+				<value>com.trial.bean.Computerstate</value>
+				<value>com.trial.bean.Computerstate1</value>
+				<value>com.trial.bean.ConcreteComputer</value>
+				<value>com.trial.bean.Dev_allocation</value>
+				<value>com.trial.bean.Manager</value>
+			</list>
+		</property>
+	</bean>
+	<!--配置事物管理器，注入sessionfactory-->
+	<bean id="txManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<!--配置hibernateTemplate模板，注入sessionfactory-->
+	<bean id="hibernateTemplete" class="org.springframework.orm.hibernate4.HibernateTemplate">
+	<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager"/><!-- 开启事务管理器模式 ，必须使用 通过他类似hibernate中的commit（）--> 
+    <bean id = "method" class="com.trial.daoimpl.Method">
+      <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <!--配置struts2的action -->
+    <bean id="allocation" class="com.trial.action.Allocation"/>
+    <bean id="ComputerReturn" class="com.trial.action.ComputerReturn"/>
+    <bean id="ManagerLogin" class="com.trial.action.ManagerLogin"/>
+    <bean id="querybyid" class="com.trial.action.querybyid"/>
+    <bean id="querybyos" class="com.trial.action.querybyos"/>
+    <bean id="querybysn" class="com.trial.action.querybysn"/>   
+</beans>
